@@ -12,3 +12,6 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - `Client::new(base_url, api_key)` + module `error` (`Transport`, `Api`, `Decode`, `InvalidUrl`).
 - Endpoint `GET /v1/models` (`client.models()`) et `GET /v1/models/{model}` (`client.model(id)`).
 - Types `Model`, `ModelsResponse`, `ModelType`, `ModelCosts` (tous `#[non_exhaustive]`).
+- `ClientBuilder` (timeout + api_key configurables) ; `Client::builder()` et `Client::new()` cohérents (`impl Into<String>`).
+- Endpoint `POST /v1/embeddings` (`client.embeddings()`).
+- Types `EmbeddingsRequest` (builder fluent), `EmbeddingsInput` (untagged : Text / TextBatch / Tokens / TokensBatch), `Embeddings`, `Embedding`, `EncodingFormat`.
