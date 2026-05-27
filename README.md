@@ -23,6 +23,8 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
 ## Quickstart
 
+### Lister les modèles
+
 ```rust,no_run
 use opengatellm::Client;
 
@@ -30,13 +32,84 @@ use opengatellm::Client;
 let client = Client::new("https://albert.api.etalab.gouv.fr", Some("YOUR_TOKEN"))?;
 let models = client.models().await?;
 for m in &models.data {
-    println!("{}", m.id);
+    println!("{} ({:?})", m.id, m.kind);
 }
 # Ok(())
 # }
 ```
 
-Voir [`examples/`](examples) pour des cas plus complets (chat streaming, embeddings).
+### Chat (non-streaming)
+
+```rust,no_run
+use opengatellm::{Client, ChatMessage, CreateChatCompletion};
+
+# async fn run() -> Result<(), opengatellm::Error> {
+let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
+let req = CreateChatCompletion::new(
+    vec![
+        ChatMessage::system("Réponds en français."),
+        ChatMessage::user("Quelle est la capitale de la France ?"),
+    ],
+    "qwen3-coder",
+)
+.temperature(0.0)
+.max_completion_tokens(64);
+let resp = client.chat_completion(&req).await?;
+println!("{:?}", resp.choices[0].message.content);
+# Ok(())
+# }
+```
+
+### Chat (streaming SSE)
+
+```rust,no_run
+use futures_util::StreamExt;
+use opengatellm::{Client, ChatMessage, CreateChatCompletion};
+
+# async fn run() -> Result<(), opengatellm::Error> {
+let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
+let req = CreateChatCompletion::new(
+    vec![ChatMessage::user("Raconte-moi une blague.")],
+    "qwen3-coder",
+);
+let mut stream = client.chat_completion_stream(&req).await?;
+while let Some(chunk) = stream.next().await {
+    let chunk = chunk?;
+    if let Some(delta) = chunk.choices.first().and_then(|c| c.delta.content.as_ref()) {
+        print!("{delta}");
+    }
+}
+# Ok(())
+# }
+```
+
+### Embeddings
+
+```rust,no_run
+use opengatellm::{Client, EmbeddingsRequest};
+
+# async fn run() -> Result<(), opengatellm::Error> {
+let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
+let req = EmbeddingsRequest::new("Paris est la capitale de la France.", "nomic-embed-text");
+let resp = client.embeddings(&req).await?;
+println!("dim={}", resp.data[0].embedding.len());
+# Ok(())
+# }
+```
+
+## Examples runnable
+
+```bash
+# Pré-requis : une instance OGL accessible (cf. section ci-dessous pour le stack de test).
+export OGL_URL=http://localhost:8000
+export OGL_TOKEN=mytoken
+export OGL_CHAT_MODEL=qwen3-coder
+export OGL_EMBED_MODEL=nomic-embed-text
+
+cargo run --example chat_completion
+cargo run --example chat_streaming
+cargo run --example embeddings
+```
 
 ## Tests d'intégration locaux
 

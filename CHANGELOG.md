@@ -21,3 +21,5 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - Module `stream` : streaming SSE chat via `client.chat_completion_stream()` (force `stream=true`, retourne `impl Stream<Item=Result<ChatCompletionChunk>>`). Sentinelle `[DONE]` détectée et le stream se termine proprement.
 - Types stream : `ChatCompletionChunk`, `ChunkChoice`, `ChoiceDelta`, `ChoiceDeltaToolCall`, `ChoiceDeltaToolCallFunction`.
 - Variante `Error::Stream(String)` pour les erreurs de parsing SSE.
+- Examples runnable : `chat_completion`, `chat_streaming`, `embeddings` (env `OGL_URL`, `OGL_TOKEN`, `OGL_CHAT_MODEL`, `OGL_EMBED_MODEL`).
+- README quickstart enrichi (4 snippets : models, chat, streaming, embeddings).
