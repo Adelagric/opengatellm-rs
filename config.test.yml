@@ -1,0 +1,53 @@
+# Configuration OGL pour tests d'intégration locaux du client Rust opengatellm.
+# Pointe vers Ollama natif local via host.docker.internal:11434.
+# Pré-requis : `ollama pull qwen3-coder:30b && ollama pull nomic-embed-text`.
+
+dependencies:
+  postgres:
+    url: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-changeme}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/postgres
+    echo: False
+    pool_size: 5
+    connect_args:
+      server_settings:
+        statement_timeout: "120s"
+      command_timeout: 60
+
+  redis:
+    url: redis://:${REDIS_PASSWORD:-changeme}@${REDIS_HOST:-redis}:${REDIS_PORT:-6379}
+    max_connections: 200
+    socket_connect_timeout: 5
+    retry_on_timeout: True
+    health_check_interval: 30
+    decode_responses: False
+    socket_keepalive: True
+
+  elasticsearch:
+    index_name: opengatellm-test
+    index_language: english
+    number_of_shards: 1
+    number_of_replicas: 0
+    hosts: "http://${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_PORT:-9200}"
+    basic_auth:
+      - "elastic"
+      - ${ELASTICSEARCH_PASSWORD:-changeme}
+
+settings:
+  swagger_version: 0.4.5
+  auth_secret_key: changeme-test-only
+  auth_bootsrap_admin_username: admin
+  auth_bootsrap_admin_password: changeme
+
+models:
+  - name: qwen3-coder
+    type: text-generation
+    providers:
+      - type: openai
+        url: http://host.docker.internal:11434
+        model_name: "qwen3-coder:30b"
+
+  - name: nomic-embed-text
+    type: text-embeddings-inference
+    providers:
+      - type: openai
+        url: http://host.docker.internal:11434
+        model_name: "nomic-embed-text"

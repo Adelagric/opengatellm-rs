@@ -1,0 +1,86 @@
+name: opengatellm-test
+
+# Stack OGL local pour tests d'intégration du client Rust opengatellm.
+# Différences vs compose.example.yml d'OGL :
+#   - playground retiré (inutile pour tester le client)
+#   - extra_hosts ajouté pour atteindre Ollama natif local sur macOS / Linux
+#   - config.test.yml monté à la place de config.yml
+
+services:
+  api:
+    image: ghcr.io/etalab-ia/opengatellm/api:0.4.5
+    restart: unless-stopped
+    env_file: .env.test
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - "./config.test.yml:/config.yml:ro"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16.5
+    restart: unless-stopped
+    user: postgres
+    environment:
+      - "POSTGRES_USER=${POSTGRES_USER:-postgres}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}"
+      - "POSTGRES_DB=postgres"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "postgres"]
+      interval: 4s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  redis:
+    image: redis/redis-stack-server:7.4.0-v7
+    restart: unless-stopped
+    environment:
+      REDIS_ARGS: "--dir /data --requirepass ${REDIS_PASSWORD:-changeme} --user ${REDIS_USER:-redis} on >password ~* allcommands --save 60 1 --appendonly yes"
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 4s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.2
+    restart: unless-stopped
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ELASTIC_USERNAME=elasticsearch"
+      - "ELASTIC_PASSWORD=changeme"
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "bash", "-c", ":> /dev/tcp/127.0.0.1/9200"]
+      interval: 4s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+volumes:
+  elasticsearch:
+  postgres:
+  redis:
