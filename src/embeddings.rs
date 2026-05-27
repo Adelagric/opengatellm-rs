@@ -1,6 +1,7 @@
 //! Endpoint `POST /v1/embeddings`.
 
 use crate::client::Client;
+use crate::common::Usage;
 use crate::error::Error;
 use serde::{Deserialize, Serialize};
 
@@ -115,9 +116,9 @@ pub struct Embeddings {
     /// Identifiant unique de la requête (si fourni par OGL).
     #[serde(default)]
     pub id: Option<String>,
-    /// Information d'usage brute (typage propre arrive avec le module chat).
+    /// Compteurs d'usage (tokens, coût, empreinte environnementale).
     #[serde(default)]
-    pub usage: Option<serde_json::Value>,
+    pub usage: Option<Usage>,
 }
 
 impl Client {

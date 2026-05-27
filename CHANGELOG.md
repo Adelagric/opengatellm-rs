@@ -15,3 +15,6 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - `ClientBuilder` (timeout + api_key configurables) ; `Client::builder()` et `Client::new()` cohérents (`impl Into<String>`).
 - Endpoint `POST /v1/embeddings` (`client.embeddings()`).
 - Types `EmbeddingsRequest` (builder fluent), `EmbeddingsInput` (untagged : Text / TextBatch / Tokens / TokensBatch), `Embeddings`, `Embedding`, `EncodingFormat`.
+- Module `common` : `Usage`, `EnvironmentalImpacts`, `CarbonFootprintUsage`, `CarbonFootprintRange`.
+- Endpoint `POST /v1/chat/completions` non-streaming (`client.chat_completion()` force `stream=false`).
+- Types chat : `CreateChatCompletion` (builder), `ChatMessage` (raccourcis `user/system/assistant`), `ChatContent` (untagged texte|parts), `ContentPart` (texte + image_url multimodal), `ImageUrl`, `ToolCall` (Function|Custom), `FunctionDetails`, `CustomDetails`, `Annotation`, `Choice`, `ChatCompletion`, `FinishReason`, `Stop`, `Role`, `ServiceTier`, logprobs.
