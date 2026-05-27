@@ -26,6 +26,10 @@ pub enum Error {
     /// URL invalide passée au client ou produite à partir d'une URL de base invalide.
     #[error("invalid URL: {0}")]
     InvalidUrl(String),
+
+    /// Erreur de parsing d'un flux SSE (streaming chat).
+    #[error("stream error: {0}")]
+    Stream(String),
 }
 
 impl From<url::ParseError> for Error {

@@ -28,6 +28,7 @@ pub mod common;
 pub mod embeddings;
 pub mod error;
 pub mod models;
+pub mod stream;
 
 pub use chat::{
     Annotation, AnnotationUrlCitation, ChatCompletion, ChatContent, ChatMessage, Choice,
@@ -39,3 +40,6 @@ pub use common::{CarbonFootprintRange, CarbonFootprintUsage, EnvironmentalImpact
 pub use embeddings::{Embedding, Embeddings, EmbeddingsInput, EmbeddingsRequest, EncodingFormat};
 pub use error::Error;
 pub use models::{Model, ModelCosts, ModelType, ModelsResponse};
+pub use stream::{
+    ChatCompletionChunk, ChoiceDelta, ChoiceDeltaToolCall, ChoiceDeltaToolCallFunction, ChunkChoice,
+};

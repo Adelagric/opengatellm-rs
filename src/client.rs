@@ -54,6 +54,14 @@ impl Client {
         &self.base_url
     }
 
+    pub(crate) fn http(&self) -> &reqwest::Client {
+        &self.http
+    }
+
+    pub(crate) fn api_key(&self) -> Option<&str> {
+        self.api_key.as_deref()
+    }
+
     pub(crate) fn endpoint(&self, path: &str) -> Result<Url, Error> {
         Ok(self.base_url.join(path)?)
     }

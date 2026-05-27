@@ -18,3 +18,6 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - Module `common` : `Usage`, `EnvironmentalImpacts`, `CarbonFootprintUsage`, `CarbonFootprintRange`.
 - Endpoint `POST /v1/chat/completions` non-streaming (`client.chat_completion()` force `stream=false`).
 - Types chat : `CreateChatCompletion` (builder), `ChatMessage` (raccourcis `user/system/assistant`), `ChatContent` (untagged texte|parts), `ContentPart` (texte + image_url multimodal), `ImageUrl`, `ToolCall` (Function|Custom), `FunctionDetails`, `CustomDetails`, `Annotation`, `Choice`, `ChatCompletion`, `FinishReason`, `Stop`, `Role`, `ServiceTier`, logprobs.
+- Module `stream` : streaming SSE chat via `client.chat_completion_stream()` (force `stream=true`, retourne `impl Stream<Item=Result<ChatCompletionChunk>>`). Sentinelle `[DONE]` détectée et le stream se termine proprement.
+- Types stream : `ChatCompletionChunk`, `ChunkChoice`, `ChoiceDelta`, `ChoiceDeltaToolCall`, `ChoiceDeltaToolCallFunction`.
+- Variante `Error::Stream(String)` pour les erreurs de parsing SSE.
