@@ -13,8 +13,9 @@
 - `GET  /v1/models` + `GET /v1/models/{model}`
 - Monitoring : `GET /health`, `GET /health/models`, `GET /metrics`
 - Self-service `me/*` : `GET`/`PATCH /v1/me/info`, `/v1/me/keys` (liste, création, lecture, révocation), `GET /v1/me/usage`
+- RAG : `POST /v1/search`, collections (CRUD), documents (ingestion multipart + liste/lecture/suppression), chunks (lecture)
 
-Encore **hors scope** : `admin/*`, RAG (`collections/*`, `documents/*`, `chunks/*`, `search`), `audio/*`, `ocr`, `parse-beta`, `auth/login`.
+Encore **hors scope** : `admin/*`, `audio/*`, `ocr`, `parse-beta`, `auth/login`.
 
 ## Installation
 

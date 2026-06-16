@@ -81,6 +81,24 @@ impl Client {
         Ok(url)
     }
 
+    /// Construit une URL en ajoutant plusieurs segments de path (échappés).
+    pub(crate) fn endpoint_with_segments(
+        &self,
+        base_path: &str,
+        segments: &[&str],
+    ) -> Result<Url, Error> {
+        let mut url = self.base_url.join(base_path.trim_end_matches('/'))?;
+        {
+            let mut seg = url
+                .path_segments_mut()
+                .map_err(|()| Error::InvalidUrl("base URL cannot have path segments".into()))?;
+            for s in segments {
+                seg.push(s);
+            }
+        }
+        Ok(url)
+    }
+
     pub(crate) async fn get_json<T: DeserializeOwned>(&self, url: Url) -> Result<T, Error> {
         let mut req = self.http.get(url);
         if let Some(key) = &self.api_key {
@@ -178,6 +196,25 @@ impl Client {
             return Err(Error::Api { status, detail });
         }
         Ok(())
+    }
+
+    pub(crate) async fn post_multipart<T: DeserializeOwned>(
+        &self,
+        url: Url,
+        form: reqwest::multipart::Form,
+    ) -> Result<T, Error> {
+        let mut req = self.http.post(url).multipart(form);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            let status = resp.status().as_u16();
+            let detail = resp.text().await.unwrap_or_default();
+            return Err(Error::Api { status, detail });
+        }
+        let bytes = resp.bytes().await?;
+        Ok(serde_json::from_slice(&bytes)?)
     }
 }
 

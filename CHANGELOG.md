@@ -30,3 +30,16 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - Monitoring : `GET /health` (`client.health()`), `GET /health/models` (`client.health_models()`), `GET /metrics` (`client.metrics()` → texte Prometheus brut) ; types `Health`, `HealthStatus`, `ModelHealthStatus`, `ModelsHealthResponse`.
 - Self-service `me/*` : `me_info()`, `update_me_info()` (PATCH), `create_key()`, `keys()`, `key()`, `delete_key()`, `usage()` ; types `UserInfo`, `UpdateUserInfo` (builder), `PermissionType`, `Limit`/`LimitType`, `CreateKey`/`CreateKeyResponse`, `Key`/`Keys`, `UsageDetail`/`Usages`, `EndpointUsage`, et les filtres `KeysQuery`/`UsageQuery` (builders).
 - Tests : 16 round-trips serde (rerank, monitoring, me/*) + 4 tests d'intégration gated (`integration_tier1`).
+
+### Corrigé — revue Tier 1
+- `Usages` : items de `data` correctement modélisés (`UsageRecord` avec compteurs imbriqués sous `usage` + `created` requis) ; ajout de `MetricsUsage` ; `UsageDetail.impacts`/`metrics` typés et toujours présents.
+- Construction d'URL : `endpoint_with_segment` retire le slash final pour éviter `…//{id}` (corrige `key()`/`delete_key()` et le `model()` pré-existant).
+- Tests `wiremock` (`wire_me`) : chemins réels, 204/201, query-string via reqwest, réponse texte `/metrics`.
+
+### Ajouté — Tier 2 (RAG)
+- Cœur : `post_multipart` (feature `multipart` de reqwest) + `endpoint_with_segments` (chemins multi-segments).
+- `POST /v1/search` (`client.search()`) ; `CreateSearch` (builder), `SearchMethod`, `Search`, `Searches`.
+- Collections (CRUD) : `create_collection()` (→ id), `collections()`, `collection()`, `update_collection()` (PATCH 204), `delete_collection()` (204) ; `Collection`, `Collections`, `CollectionRequest`, `CollectionUpdateRequest`, `CollectionVisibility`, `CollectionsQuery`.
+- Documents : `create_document()` (multipart → `DocumentResponse`), `documents()`, `document()`, `delete_document()` (204) ; `Document`, `Documents`, `CreateDocument` (builder), `DocumentsQuery`.
+- Chunks (lecture) : `document_chunks()`, `chunk()` ; `Chunk`, `Chunks`.
+- Tests : 6 round-trips serde + 8 tests `wiremock` (`wire_rag`) — 201 `{id}`, 204, multipart, chemins multi-segments, body search.

@@ -25,14 +25,18 @@
 #![doc(html_root_url = "https://docs.rs/opengatellm/0.1.0")]
 
 pub mod chat;
+pub mod chunks;
 pub mod client;
+pub mod collections;
 pub mod common;
+pub mod documents;
 pub mod embeddings;
 pub mod error;
 pub mod me;
 pub mod models;
 pub mod monitoring;
 pub mod rerank;
+pub mod search;
 pub mod stream;
 
 pub use chat::{
@@ -40,8 +44,14 @@ pub use chat::{
     ChoiceLogprobs, ContentPart, CreateChatCompletion, CustomDetails, FinishReason,
     FunctionDetails, ImageUrl, Role, ServiceTier, Stop, TokenLogprob, ToolCall, TopLogprob,
 };
+pub use chunks::{Chunk, Chunks};
 pub use client::{Client, ClientBuilder};
+pub use collections::{
+    Collection, CollectionRequest, CollectionUpdateRequest, CollectionVisibility, Collections,
+    CollectionsQuery,
+};
 pub use common::{CarbonFootprintRange, CarbonFootprintUsage, EnvironmentalImpacts, Usage};
+pub use documents::{CreateDocument, Document, DocumentResponse, Documents, DocumentsQuery};
 pub use embeddings::{Embedding, Embeddings, EmbeddingsInput, EmbeddingsRequest, EncodingFormat};
 pub use error::Error;
 pub use me::{
@@ -52,6 +62,7 @@ pub use me::{
 pub use models::{Model, ModelCosts, ModelType, ModelsResponse};
 pub use monitoring::{Health, HealthStatus, ModelHealthStatus, ModelsHealthResponse};
 pub use rerank::{CreateRerankBody, RerankResponse, RerankResult};
+pub use search::{CreateSearch, Search, SearchMethod, Searches};
 pub use stream::{
     ChatCompletionChunk, ChoiceDelta, ChoiceDeltaToolCall, ChoiceDeltaToolCallFunction, ChunkChoice,
 };
