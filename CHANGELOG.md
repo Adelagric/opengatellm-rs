@@ -23,3 +23,10 @@ Toutes les modifications notables sont consignées ici. Le format suit [Keep a C
 - Variante `Error::Stream(String)` pour les erreurs de parsing SSE.
 - Examples runnable : `chat_completion`, `chat_streaming`, `embeddings` (env `OGL_URL`, `OGL_TOKEN`, `OGL_CHAT_MODEL`, `OGL_EMBED_MODEL`).
 - README quickstart enrichi (4 snippets : models, chat, streaming, embeddings).
+
+### Ajouté — Tier 1 (vers v0.2)
+- Cœur client : `get_json_with_query` (params de requête / pagination), `get_text` (réponses non-JSON), `patch_no_content` (PATCH → 204), `delete_no_content` (DELETE → 204).
+- Endpoint `POST /v1/rerank` (`client.rerank()`) ; types `CreateRerankBody` (builder + `top_n`), `RerankResult`, `RerankResponse`.
+- Monitoring : `GET /health` (`client.health()`), `GET /health/models` (`client.health_models()`), `GET /metrics` (`client.metrics()` → texte Prometheus brut) ; types `Health`, `HealthStatus`, `ModelHealthStatus`, `ModelsHealthResponse`.
+- Self-service `me/*` : `me_info()`, `update_me_info()` (PATCH), `create_key()`, `keys()`, `key()`, `delete_key()`, `usage()` ; types `UserInfo`, `UpdateUserInfo` (builder), `PermissionType`, `Limit`/`LimitType`, `CreateKey`/`CreateKeyResponse`, `Key`/`Keys`, `UsageDetail`/`Usages`, `EndpointUsage`, et les filtres `KeysQuery`/`UsageQuery` (builders).
+- Tests : 16 round-trips serde (rerank, monitoring, me/*) + 4 tests d'intégration gated (`integration_tier1`).

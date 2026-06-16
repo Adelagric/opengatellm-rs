@@ -5,13 +5,16 @@
 > [!WARNING]
 > **Statut : experimental.** Le crate suit la version OGL `>=0.4.5 <0.5.0`. L'API OGL elle-même est en beta et peut introduire des breaking changes. Ce crate ne fait **pas** de retry/backoff automatique — c'est à l'appelant de gérer.
 
-## Scope v0.1
+## Endpoints couverts
 
 - `POST /v1/chat/completions` (streaming + non-streaming)
 - `POST /v1/embeddings`
+- `POST /v1/rerank`
 - `GET  /v1/models` + `GET /v1/models/{model}`
+- Monitoring : `GET /health`, `GET /health/models`, `GET /metrics`
+- Self-service `me/*` : `GET`/`PATCH /v1/me/info`, `/v1/me/keys` (liste, création, lecture, révocation), `GET /v1/me/usage`
 
-Les endpoints `admin/*`, `files/*`, `collections/*`, `rerank`, `audio/*`, `ocr` sont **hors scope** v0.1.
+Encore **hors scope** : `admin/*`, RAG (`collections/*`, `documents/*`, `chunks/*`, `search`), `audio/*`, `ocr`, `parse-beta`, `auth/login`.
 
 ## Installation
 
@@ -93,6 +96,41 @@ let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
 let req = EmbeddingsRequest::new("Paris est la capitale de la France.", "nomic-embed-text");
 let resp = client.embeddings(&req).await?;
 println!("dim={}", resp.data[0].embedding.len());
+# Ok(())
+# }
+```
+
+### Rerank
+
+```rust,no_run
+use opengatellm::{Client, CreateRerankBody};
+
+# async fn run() -> Result<(), opengatellm::Error> {
+let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
+let req = CreateRerankBody::new(
+    "aides à l'irrigation",
+    ["Prêt à taux zéro agricole", "Subvention matériel d'irrigation"],
+    "bge-reranker",
+)
+.top_n(1);
+let resp = client.rerank(&req).await?;
+println!("meilleur document = index {}", resp.results[0].index);
+# Ok(())
+# }
+```
+
+### Monitoring & self-service
+
+```rust,no_run
+use opengatellm::{Client, UsageQuery};
+
+# async fn run() -> Result<(), opengatellm::Error> {
+let client = Client::new("http://localhost:8000", Some("TOKEN"))?;
+// Sonde de liveness (non authentifiée côté OGL).
+println!("santé : {}", client.health().await?.status);
+// Suivi de sa propre consommation de tokens.
+let usage = client.usage(&UsageQuery::new().limit(10)).await?;
+println!("{} lignes d'usage", usage.data.len());
 # Ok(())
 # }
 ```
