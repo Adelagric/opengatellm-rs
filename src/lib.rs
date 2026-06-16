@@ -46,7 +46,8 @@ pub use embeddings::{Embedding, Embeddings, EmbeddingsInput, EmbeddingsRequest, 
 pub use error::Error;
 pub use me::{
     CreateKey, CreateKeyResponse, EndpointUsage, Key, Keys, KeysQuery, Limit, LimitType,
-    PermissionType, UpdateUserInfo, UsageDetail, UsageQuery, Usages, UserInfo,
+    MetricsUsage, PermissionType, UpdateUserInfo, UsageDetail, UsageQuery, UsageRecord, Usages,
+    UserInfo,
 };
 pub use models::{Model, ModelCosts, ModelType, ModelsResponse};
 pub use monitoring::{Health, HealthStatus, ModelHealthStatus, ModelsHealthResponse};

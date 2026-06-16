@@ -176,7 +176,7 @@ pub struct Key {
     pub id: i64,
     /// Nom lisible.
     pub name: String,
-    /// Token (potentiellement masqué selon l'endpoint).
+    /// Token de la clé (le gateway renvoie le token complet).
     pub token: String,
     /// Expiration (timestamp Unix), si définie.
     #[serde(default)]
@@ -193,7 +193,19 @@ pub struct Keys {
     pub data: Vec<Key>,
 }
 
-/// Détail d'usage agrégé (une entrée par ligne d'usage).
+/// Métriques de latence d'une ligne d'usage.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct MetricsUsage {
+    /// Latence totale (ms).
+    #[serde(default)]
+    pub latency: Option<i64>,
+    /// Time-to-first-token (ms).
+    #[serde(default)]
+    pub ttft: Option<i64>,
+}
+
+/// Compteurs de tokens / coût / impacts d'une ligne d'usage.
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct UsageDetail {
@@ -209,21 +221,49 @@ pub struct UsageDetail {
     /// Coût estimé.
     #[serde(default)]
     pub cost: Option<f64>,
-    /// Empreinte environnementale.
+    /// Empreinte environnementale (toujours présente côté OGL).
     #[serde(default)]
-    pub impacts: Option<EnvironmentalImpacts>,
-    /// Métriques additionnelles dépendantes de l'endpoint (surface instable :
-    /// laissée en JSON brut tant qu'OGL est en beta).
+    pub impacts: EnvironmentalImpacts,
+    /// Métriques de latence (toujours présentes côté OGL).
     #[serde(default)]
-    pub metrics: Option<serde_json::Value>,
+    pub metrics: MetricsUsage,
+}
+
+/// Une ligne d'usage (`GET /v1/me/usage` → élément de `data`).
+///
+/// Les compteurs de tokens sont **imbriqués** sous [`UsageRecord::usage`] ;
+/// `created` est le seul champ garanti par le schéma serveur.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[non_exhaustive]
+pub struct UsageRecord {
+    /// Modèle utilisé.
+    #[serde(default)]
+    pub model: Option<String>,
+    /// Clé d'API utilisée.
+    #[serde(default)]
+    pub key: Option<String>,
+    /// Endpoint appelé.
+    #[serde(default)]
+    pub endpoint: Option<String>,
+    /// Méthode HTTP.
+    #[serde(default)]
+    pub method: Option<String>,
+    /// Code de statut de la réponse.
+    #[serde(default)]
+    pub status: Option<i64>,
+    /// Compteurs de tokens / coût / impacts de la ligne.
+    #[serde(default)]
+    pub usage: UsageDetail,
+    /// Horodatage de la ligne (timestamp Unix, secondes).
+    pub created: i64,
 }
 
 /// Réponse de `GET /v1/me/usage`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[non_exhaustive]
 pub struct Usages {
-    /// Détails d'usage.
-    pub data: Vec<UsageDetail>,
+    /// Lignes d'usage.
+    pub data: Vec<UsageRecord>,
 }
 
 /// Endpoint facturable, pour filtrer `GET /v1/me/usage`.

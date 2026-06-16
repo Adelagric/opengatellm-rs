@@ -72,7 +72,9 @@ impl Client {
         base_path: &str,
         segment: &str,
     ) -> Result<Url, Error> {
-        let mut url = self.base_url.join(base_path)?;
+        // `trim_end_matches('/')` évite un double slash : sans ça, un `base_path`
+        // terminé par `/` produit `…//{segment}`, que le routeur OGL ne matche pas.
+        let mut url = self.base_url.join(base_path.trim_end_matches('/'))?;
         url.path_segments_mut()
             .map_err(|()| Error::InvalidUrl("base URL cannot have path segments".into()))?
             .push(segment);

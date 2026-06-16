@@ -85,15 +85,21 @@ fn deserialize_keys_and_create_response() {
 }
 
 #[test]
-fn deserialize_usages() {
+fn deserialize_usages_nested_shape() {
+    // Forme réelle du serveur : compteurs imbriqués sous `usage`, `created` requis.
     let json = r#"{"object":"list","data":[
-      {"prompt_tokens":10,"completion_tokens":5,"total_tokens":15,"cost":0.01,
-       "impacts":{"kWh":0.001,"kgCO2eq":0.0005}}
+      {"object":"me.usage","model":"albert-large","endpoint":"/v1/rerank","method":"POST","status":200,
+       "usage":{"prompt_tokens":10,"completion_tokens":5,"total_tokens":15,"cost":0.01,
+                "impacts":{"kWh":0.001,"kgCO2eq":0.0005},"metrics":{"latency":120,"ttft":40}},
+       "created":1700000000}
     ]}"#;
     let u: Usages = serde_json::from_str(json).unwrap();
     assert_eq!(u.data.len(), 1);
-    assert_eq!(u.data[0].total_tokens, Some(15));
-    assert!(u.data[0].impacts.is_some());
+    let rec = &u.data[0];
+    assert_eq!(rec.created, 1_700_000_000);
+    assert_eq!(rec.endpoint.as_deref(), Some("/v1/rerank"));
+    assert_eq!(rec.usage.total_tokens, Some(15));
+    assert_eq!(rec.usage.metrics.ttft, Some(40));
 }
 
 #[test]
