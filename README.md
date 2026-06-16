@@ -1,5 +1,9 @@
 # opengatellm
 
+[![crates.io](https://img.shields.io/crates/v/opengatellm.svg)](https://crates.io/crates/opengatellm)
+[![docs.rs](https://img.shields.io/docsrs/opengatellm)](https://docs.rs/opengatellm)
+[![license](https://img.shields.io/crates/l/opengatellm.svg)](#licence)
+
 > Client Rust pour [OpenGateLLM](https://github.com/etalab-ia/OpenGateLLM), l'API gateway open-source pour LLM self-hosted (DINUM / Etalab).
 
 > [!WARNING]
