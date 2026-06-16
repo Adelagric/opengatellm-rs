@@ -112,6 +112,71 @@ impl Client {
         let bytes = resp.bytes().await?;
         Ok(serde_json::from_slice(&bytes)?)
     }
+
+    pub(crate) async fn get_json_with_query<Q: Serialize + ?Sized, T: DeserializeOwned>(
+        &self,
+        url: Url,
+        query: &Q,
+    ) -> Result<T, Error> {
+        let mut req = self.http.get(url).query(query);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            let status = resp.status().as_u16();
+            let detail = resp.text().await.unwrap_or_default();
+            return Err(Error::Api { status, detail });
+        }
+        let bytes = resp.bytes().await?;
+        Ok(serde_json::from_slice(&bytes)?)
+    }
+
+    pub(crate) async fn get_text(&self, url: Url) -> Result<String, Error> {
+        let mut req = self.http.get(url);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            let status = resp.status().as_u16();
+            let detail = resp.text().await.unwrap_or_default();
+            return Err(Error::Api { status, detail });
+        }
+        Ok(resp.text().await?)
+    }
+
+    pub(crate) async fn patch_no_content<B: Serialize + ?Sized>(
+        &self,
+        url: Url,
+        body: &B,
+    ) -> Result<(), Error> {
+        let mut req = self.http.patch(url).json(body);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            let status = resp.status().as_u16();
+            let detail = resp.text().await.unwrap_or_default();
+            return Err(Error::Api { status, detail });
+        }
+        Ok(())
+    }
+
+    pub(crate) async fn delete_no_content(&self, url: Url) -> Result<(), Error> {
+        let mut req = self.http.delete(url);
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+        let resp = req.send().await?;
+        if !resp.status().is_success() {
+            let status = resp.status().as_u16();
+            let detail = resp.text().await.unwrap_or_default();
+            return Err(Error::Api { status, detail });
+        }
+        Ok(())
+    }
 }
 
 /// Builder pour configurer un [`Client`] avec options (timeout, `api_key`).

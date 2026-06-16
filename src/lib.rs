@@ -3,7 +3,9 @@
 //!
 //! # Statut
 //!
-//! Crate en cours de construction (v0.1 minimal : chat, embeddings, models).
+//! Crate en cours de construction. Endpoints couverts : `models`, `embeddings`,
+//! `chat` (+ streaming SSE), `rerank`, monitoring (`health` / `health/models` /
+//! `metrics`) et self-service `me/*` (info, clés d'API, usage).
 //! Compatible OGL `>=0.4.5 <0.5.0`.
 //!
 //! # Exemple
@@ -27,7 +29,10 @@ pub mod client;
 pub mod common;
 pub mod embeddings;
 pub mod error;
+pub mod me;
 pub mod models;
+pub mod monitoring;
+pub mod rerank;
 pub mod stream;
 
 pub use chat::{
@@ -39,7 +44,13 @@ pub use client::{Client, ClientBuilder};
 pub use common::{CarbonFootprintRange, CarbonFootprintUsage, EnvironmentalImpacts, Usage};
 pub use embeddings::{Embedding, Embeddings, EmbeddingsInput, EmbeddingsRequest, EncodingFormat};
 pub use error::Error;
+pub use me::{
+    CreateKey, CreateKeyResponse, EndpointUsage, Key, Keys, KeysQuery, Limit, LimitType,
+    PermissionType, UpdateUserInfo, UsageDetail, UsageQuery, Usages, UserInfo,
+};
 pub use models::{Model, ModelCosts, ModelType, ModelsResponse};
+pub use monitoring::{Health, HealthStatus, ModelHealthStatus, ModelsHealthResponse};
+pub use rerank::{CreateRerankBody, RerankResponse, RerankResult};
 pub use stream::{
     ChatCompletionChunk, ChoiceDelta, ChoiceDeltaToolCall, ChoiceDeltaToolCallFunction, ChunkChoice,
 };
